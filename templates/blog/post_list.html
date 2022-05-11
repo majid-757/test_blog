@@ -8,7 +8,7 @@
     <body>
         <header class="page-header">
             <div class="container">
-                <h1><a href="/">Majid</a></h1>
+                {% comment %} <h1><a href="/">Majid</a></h1> {% endcomment %}
             </div>
         </header>
 
@@ -23,8 +23,14 @@
                                 </time>
                                 <h2><a href="{% url 'blog:post_detail' pk=post.pk %}">{{ post.title }}</a></h2>
                                 <p>{{ post.text|linebreaksbr }}</p>
+                                <div class="comments">
+
+                                    <a href="{% url 'blog:post_detail' pk=post.pk %}">Comments : {{ post.approved_comments.count }}</a>
+        
+                                </div>
                             </article>
                         {% endfor %}
+                        
                         
                     {% endblock %}
                 </div>

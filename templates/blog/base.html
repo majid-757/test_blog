@@ -13,11 +13,13 @@
             <div class="container">
                 {% if user.is_authenticated %}
 
-                    <a href="{% url 'blog:post_new' %}" class=top-menu>
-                        {% include './icons/file-earmark-plus.svg' %}
-                    </a>
+                    <a href="{% url 'blog:post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+                    <a href="{% url 'blog:post_draft_list' %}" class="top-menu"><span class="glyphicon glyphicon-edit"></span></a>
+                    <p class="top-menu">Hello {{ user.username }} <small>(<a href="{% url 'logout' %}">Log out</a>)</small></p>
 
-                    <a class="btn btn-success" href="{% url 'blog:post_draft_list' %}">Draft</a>
+                {% else %}
+
+                    <a href="{% url 'login' %}" class="top-menu"><span class="glyphicon glyphicon-lock"></span></a>
 
                 {% endif %}
                 
@@ -40,3 +42,8 @@
 
 
 
+{% comment %} <a href="{% url 'blog:post_new' %}" class=top-menu>
+    {% include './icons/file-earmark-plus.svg' %}
+</a>
+
+<a class="btn btn-success" href="{% url 'blog:post_draft_list' %}">Draft</a> {% endcomment %}

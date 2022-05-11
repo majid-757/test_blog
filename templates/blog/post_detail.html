@@ -38,6 +38,25 @@
         <p>{{ post.text|linebreaksbr }}</p>
     </article>
 
+    <a class="btn btn-success" href="{% url 'blog:add_comment_to_post' pk=post.pk %}">Add comment</a>
+
+    {% for comment in post.comments.all %}
+        <hr>
+            <div class="comments">
+                <div class="date">
+                    {{ comment.created_date }}
+                </div>
+                <strong>{{ comment.author }}</strong>
+                <p>{{ comment.text|linebreaks }}</p>
+            </div>
+    {% empty %}
+            </hr>
+
+            <p>No comments here yet :(</p>
+
+    {% endfor %}
+
+
 {% endblock content %}
 
 
