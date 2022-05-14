@@ -34,7 +34,7 @@ class Comment(models.Model):
 
 
     def approve(self):
-        self.approve_comment = True
+        self.approved_comment = True
         self.save()
 
 
@@ -44,10 +44,9 @@ class Comment(models.Model):
 
 
 
-    def approve_comments(self):
-        return self.comments.filter(approve_comment=True)
+    def approved_comments(self):
 
-
+        return self.comments.filter(approved_comment=True)
 
 
 

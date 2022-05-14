@@ -42,20 +42,35 @@
 
     {% for comment in post.comments.all %}
         <hr>
-            <div class="comments">
-                <div class="date">
-                    {{ comment.created_date }}
-                </div>
+        <div class="comments">
+            <div class="date">
+                {{ comment.created_date }}
                 <strong>{{ comment.author }}</strong>
-                <p>{{ comment.text|linebreaks }}</p>
             </div>
+        {% if user.is_authenticated %}
+
+            {% if not comment.approved_comment %}
+                
+                <a class="btn btn-primary" href="{% url 'blog:comment_approve' pk=comment.pk %}">Comment Approve</a> 
+
+            {% else %}
+
+                <a class="btn btn-primary href="#">
+                    Approve
+                </a>
+            {% endif %}
+
+            <a class="btn btn-danger" href="{% url 'blog:comment_remove' pk=comment.pk %}">Comment Remove</a>
+        {% endif %}
+
+            <p>{{ comment.text|linebreaks }}</p>
+        </div>
     {% empty %}
-            </hr>
+        </hr>
 
             <p>No comments here yet :(</p>
 
     {% endfor %}
-
 
 {% endblock content %}
 
