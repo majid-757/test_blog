@@ -1,16 +1,64 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
+from django.views.generic.edit import FormView
 
-from .models import Post, Comment
+
+from .models import Post, Comment, AboutUs
 from .forms import PostForm, CommentForm
 
 
 def post_list(request):
     
-    posts = Post.objects.all()
+    # ordering = request.GET.get('ordering' ,'newer')
 
-    return render(request, 'blog/post_list.html', {'posts': posts})
+    # if ordering == 'newer':
+        
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
+    #     sort = '-published_date'
+        
+
+    # # posts = Post.objects.filter(name__contains=ordering)
+    # elif ordering == 'older':
+
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('created_date')
+    #     sort = 'published_date'
+    #     posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
+
+    # else:
+    #     posts = Post.objects.all()
+
+    
+
+    # types = request.GET.get('types', 'published')
+
+    # if types == 'published':
+
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
+        
+    #     posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
+
+    # elif types == 'draft':
+
+    #     # posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
+        
+    #     posts = Post.objects.filter(published_date__isnull=True).order_by(sort)
+
+    # else:
+
+    #     posts = Post.objects.all()
+
+    ordering = request.GET.get('ordering' ,'newer')
+    sort = '-published_date' if ordering == 'newer' else 'published_date'
+    types = request.GET.get('types', 'published')
+    posts = Post.objects.all()
+    if type == 'published':
+        posts.filter(published_date__isnull=False)
+    else:
+        posts.filter(published_date__isnull=True)
+    return render(request, 'blog/post_list.html', {'posts': posts.order_by(sort)})
+    
 
 
 @login_required
@@ -75,6 +123,7 @@ def post_publish(request, pk):
 
 
 
+
 @login_required
 def post_remove(request, pk):
     post = get_object_or_404(Post, pk=pk)
@@ -119,4 +168,19 @@ def comment_remove(request, pk):
     comment.delete()
     return redirect('blog:post_detail', pk=comment.post.pk)
 
+
+
+
+class About_Us(ListView):
+    
+    model = AboutUs
+    context_object_name = 'about_us'
+    queryset = AboutUs.objects.all()
+    template_name = 'blog/about_us.html'
+
+
+
+
+class CreatePostView(View):
+    pass
 

@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+
+<head>
+
+    {% block title %}
+
+        <title> About Us </title>
+
+    {% endblock title %}
+
+</head>
+
+{% block content %}
+
+
+    {% for item in about_us %}
+
+
+        <p>{{ item }}</p>
+
+
+
+    {% endfor %}
+
+{% endblock content %}
+
+
+
+
+
