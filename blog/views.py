@@ -2,7 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-from django.views.generic.edit import FormView
+# from django.views.generic.edit import FormView
+from django.views import View
+from django.views.generic.edit import FormMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_http_methods
 
 
 from .models import Post, Comment, AboutUs
@@ -68,22 +74,22 @@ def post_detail(request, pk):
 
 
 
-@login_required
-def post_new(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
+# @login_required
+# def post_new(request):
+#     if request.method == 'POST':
+#         form = PostForm(request.POST)
    
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = timezone.now()
-            post.save()
+#         if form.is_valid():
+#             post = form.save(commit=False)
+#             post.author = request.user
+#             post.published_date = timezone.now()
+#             post.save()
 
-            return redirect('blog:post_detail', pk=post.pk)
-    else:
-        form = PostForm()
+#             return redirect('blog:post_detail', pk=post.pk)
+#     else:
+#         form = PostForm()
 
-    return render(request, 'blog/post_edit.html', {'form': form})
+#     return render(request, 'blog/post_edit.html', {'form': form})
 
 
 
@@ -180,7 +186,50 @@ class About_Us(ListView):
 
 
 
+# @method_decorator(require_http_methods(["GET", "POST"]), name='dispatch')
+class CreatePostView(LoginRequiredMixin, View):
+    
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_edit.html'
+    context_object_name = 'posts'
 
-class CreatePostView(View):
-    pass
+    def get(self, request, *args, **kwargs):
+	    form = self.form_class
+	    return render(request, self.template_name, {'form': form})
+
+
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.published_date = timezone.now()
+            post.save()
+            return redirect('blog:post_detail', pk=post.pk)
+
+
+
+
+    # def post(self, request, *args, **kwargs):
+    #     if not request.user.is_authenticated:
+    #         return HttpResponseForbidden()
+
+
+    # def form_valid(self, form):
+    #     # This method is called when valid form data has been POSTed.
+    #     # It should return an HttpResponse.
+    #     form.send_email()
+    #     return super().form_valid(form)
+
+
+
+
+
+
+
+
+
+
 
