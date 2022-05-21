@@ -9,14 +9,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods
+from django.db.models import Count
 
-
-from .models import Post, Comment, AboutUs
+from .models import Post, Comment, AboutUs, PostView
 from .forms import PostForm, CommentForm
 
 
 def post_list(request):
     
+
+
+
     # ordering = request.GET.get('ordering' ,'newer')
 
     # if ordering == 'newer':
@@ -58,7 +61,7 @@ def post_list(request):
     ordering = request.GET.get('ordering' ,'newer')
     sort = '-published_date' if ordering == 'newer' else 'published_date'
     types = request.GET.get('types', 'published')
-    posts = Post.objects.all()
+    posts = Post.objects.all().annotate(comments_count=Count('comments'))
     if type == 'published':
         posts.filter(published_date__isnull=False)
     else:
@@ -70,6 +73,10 @@ def post_list(request):
 @login_required
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
+
+    if not PostView.objects.filter(post_id=pk, user=request.user).exists():
+        pass
+
     return render(request, 'blog/post_detail.html', {'post': post})
 
 
@@ -222,8 +229,6 @@ class CreatePostView(LoginRequiredMixin, View):
     #     # It should return an HttpResponse.
     #     form.send_email()
     #     return super().form_valid(form)
-
-
 
 
 
