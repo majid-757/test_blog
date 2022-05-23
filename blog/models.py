@@ -1,9 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from hitcount.models import HitCountMixin, HitCount
-from django.contrib.contenttypes.fields import GenericRelation
-# from django.utils.encoding import python_2_unicode_compatible
+
 
 
 
@@ -14,9 +12,7 @@ class Post(models.Model):
     text = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
     published_date = models.DateTimeField(blank=True, null=True)
-    # slug = models.SlugField(unique=True, max_length=100)
-    # hit_count_generic = GenericRelation(HitCount, object_id_field='object_pk', related_query_name='hit_count_generic_relation')
-    # blog_views=models.IntegerField(default=0)
+    
 
 
     def publish(self):
@@ -28,10 +24,7 @@ class Post(models.Model):
         return self.title
 
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        return super(Post, self).save(*args, **kwargs)
+    
 
 
 

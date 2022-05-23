@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'hitcount',
+    'rest_framework',
 
     'blog',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -133,11 +134,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 
 
-# INTERNAL_IPS = [
-#     # ...
-#     "127.0.0.1",
-#     # ...
-# ]
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 
 
 # CACHES = {
@@ -146,3 +147,15 @@ LOGIN_REDIRECT_URL = '/'
 #         'LOCATION': '127.0.0.1:11211',
 #     }
 # }
+
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+
+
+

@@ -73,10 +73,9 @@ def post_list(request):
 @login_required
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-
-    if not PostView.objects.filter(post_id=pk, user=request.user).exists():
-        pass
-
+    # if not PostView.objects.filter(post_id=pk, user_id=request.user.id).exists():
+    #     PostView.objects.create(post_id=pk, user_id=request.user.id)
+    obj, created=PostView.objects.get_or_create(post_id=pk, user_id=request.user.id)
     return render(request, 'blog/post_detail.html', {'post': post})
 
 
