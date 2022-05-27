@@ -3,51 +3,59 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.serializers import Serializer
 from django.http import Http404
-from rest_framework.decorators import api_view
+from django.db.models import Count
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 from blog.models import Post
-from .serializers import PostDetailSerializer, PostDeleteSerializer, PostCreateSerializer, PostListSerializer
+from .serializers import PostDeleteSerializer, PostCreateSerializer, PostListSerializer
 
 
-
-class PostListOrCreateApiView(APIView):
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+class PostListApiView(APIView):
 
     serializer_class = PostListSerializer
+    permission_classes = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
 
-    def get_queryset(self):
-
-        # post = self.get_object(request)
-        # serializer = PostListSerializer(post)
-        # return Response(serializer.data)
-
-        # try:
-            
-            # ordering = request.GET.get('ordering' ,'newer')
-            # sort = '-published_date' if ordering == 'newer' else 'published_date'
-            # types = request.GET.get('types', 'published')
-            # posts = Post.objects.all().annotate(comments_count=Count('comments'))
-            # if type == 'published':
-            #     posts.filter(published_date__isnull=False)
-            # else:
-            #     posts.filter(published_date__isnull=True)
+        try:
+            ordering = request.GET.get('ordering' ,'newer')
+            sort = '-published_date' if ordering == 'newer' else 'published_date'
+            types = request.GET.get('types', 'published')
+            posts = Post.objects.all().annotate(comments_count=Count('comments'))
+            if types == 'published':
+                posts.filter(published_date__isnull=False)
+            else:
+                posts.filter(published_date__isnull=True)
         
+            data = Serializer(sort, many=True).data
+            return Response(
+                data
+                # posts,
+                # sort,
+                # status=status.HTTP_404_NOT_FOUND,
+            )
+        except ObjectDoesNotExist:
+            raise Http404
+
+
     
-        
-        # return Response({"message": "OK"})
 
-        # except Post.DoesNotExist:
-        #     raise Http404
+class PostCreateApiView(APIView):
 
-
+    serializer_class = PostCreateSerializer
     
+    def post(self, request, *args, **kwargs):
+        pass
 
-class PostDetailApiView(generics.RetrieveAPIView):
 
-    queryset = Post.objects.all()    
-    serializer_class = PostDetailSerializer
-    
+
 
 
 

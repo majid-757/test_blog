@@ -1,10 +1,10 @@
 from django.urls import path
 
 
-from .views import PostDetailApiView, PostDeleteApiView, PostListOrCreateApiView
+from .views import PostDeleteApiView, PostListApiView
 
 urlpatterns = [
-    path('create/', PostListOrCreateApiView.as_view(),name='post-create'),
+    path('list/', PostListApiView.as_view(),name='post-list'),
     # path('<int:pk>', PostDetailApiView.as_view(), name='post-detail'),
     path('<int:pk>', PostDeleteApiView.as_view(), name='post-delete'),
 ]
