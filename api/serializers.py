@@ -19,7 +19,7 @@ class PostCreateSerializer(ModelSerializer):
 
 
 
-class PostCreateSerializer(ModelSerializer):
+class PostDetailSerializer(ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
