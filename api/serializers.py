@@ -79,11 +79,17 @@ class CommentApproveSerializer(ModelSerializer):
 
 
 
-
 class AboutUsSerializer(ModelSerializer):
     class Meta:
         model = AboutUs
         fields = '__all__'
 
 
+
+
+
+class PostPublishSerializer(ModelSerializer):
+    class Meta:
+        model = Post
+        fields = '__all__'
 

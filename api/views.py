@@ -24,6 +24,7 @@ from .serializers import (
     CommentRemoveSerializer,
     CommentApproveSerializer,
     AboutUsSerializer,
+    PostPublishSerializer,
 )
 
 
@@ -135,13 +136,13 @@ class PostDeleteApiView(APIView):
     def get(self, request, pk):
 
         try:
-            post = Post.objects.get(pk=pk, author_id=request.user.id)
+            post = Post.objects.get(pk=pk, author_id=request.user)
             serializer = self.serializer_class(post)
             post.delete()
 
         except Post.DoesNotExist:
 
-            return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -223,15 +224,13 @@ class CommentRemoveApiView(APIView):
     def get(self, request, pk, *args, **kwargs):
 
         try:
-            comment = Comment.objects.get(pk=pk, author=request.user.id)
-            serializer = self.serializer_class(comment, data=request.data)
+            comment = Comment.objects.get(pk=pk, author=request.user)
+            serializer = self.serializer_class(comment)
             comment.delete()
-            # return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Comment.DoesNotExist:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 
@@ -242,18 +241,39 @@ class CommentApproveApiView(APIView):
     serializer_class = CommentApproveSerializer
     permission_classes = [IsAuthenticated]
 
+    def get(self, request, pk, *args, **kwargs):
+
+        try:
+            
+            approve = Comment.objects.get(pk=pk, author=request.user)
+            serializer = self.serializer_class(approve)
+            approve.approve()
+            approve.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Comment.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class PostPublishApiView(APIView):
+
+    serializer_class = PostPublishSerializer
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk, *args, **kwargs):
 
         try:
-            pass
 
-
-
-
+            post = Post.objects.get(pk=pk, author=request.user)
+            serializer = self.serializer_class(post)
+            post.publish()
+            post.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Comment.DoesNotExist:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -287,4 +307,3 @@ class AboutUsApiView(APIView):
 
 
 
-        
