@@ -158,3 +158,8 @@ INTERNAL_IPS = [
 
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'api.apps.core.pagination.LinkHeaderPagination',
+    'PAGE_SIZE': 100
+}
+
