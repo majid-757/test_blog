@@ -41,56 +41,81 @@ class PostListApiView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request, *args, **kwargs):
 
+        ordering = request.GET.get('ordering', 'newer')
+        sort = '-published_date' if ordering == 'newer' else 'published_date'
+        types = request.GET.get('types', 'published')
+        page = self.validate_integers(request.GET.get('page', 1))
+        #defult: you have to create per_page and set value for it alaways by yourself 
+        per_page = self.validate_integers(request.GET.get('per_page', 5))
+        start=(page-1)
+        end=per_page * per_page
+        
+
+        if types == 'published':
+            posts = Post.objects.filter(published_date__isnull=False)
+        else:
+            posts = Post.objects.filter(published_date__isnull=True)
+
+        serializer = self.serializer_class(
+            posts.order_by(sort)[start:end], many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def validate_integers(self,value):
         try:
-            ordering = request.GET.get('ordering' ,'newer')
+            return int(value)
+        except ValueError as e:
+            raise ValidationError('it should be integer')
 
-            if ordering == 'newer':
+
+    #         ordering = request.GET.get('ordering' ,'newer')
+
+    #         if ordering == 'newer':
         
-        # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
-                sort = '-published_date'
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
+    #             sort = '-published_date'
         
 
-    # posts = Post.objects.filter(name__contains=ordering)
-            elif ordering == 'older':
+    # # posts = Post.objects.filter(name__contains=ordering)
+    #         elif ordering == 'older':
 
-        # posts = Post.objects.filter(published_date__isnull=False).order_by('created_date')
-                sort = 'published_date'
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('created_date')
+    #             sort = 'published_date'
 
-            posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
+    #         posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
 
-            # else:
+    #         # else:
 
-            #     posts = Post.objects.all()
+    #         #     posts = Post.objects.all()
 
     
 
-            types = request.GET.get('types', 'published')
+    #         types = request.GET.get('types', 'published')
 
-            if types == 'published':
+    #         if types == 'published':
 
-        # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
+    #     # posts = Post.objects.filter(published_date__isnull=False).order_by('-created_date')
         
-                posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
+    #             posts = Post.objects.filter(published_date__isnull=False).order_by(sort)
 
-            elif types == 'draft':
+    #         elif types == 'draft':
 
-        # posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
+    #     # posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
         
-                posts = Post.objects.filter(published_date__isnull=True).order_by(sort)
+    #             posts = Post.objects.filter(published_date__isnull=True).order_by(sort)
 
-            else:
+    #         else:
 
-                posts = Post.objects.all()
+    #             posts = Post.objects.all()
         
-            data = self.serializer_class(posts, many=True).data
-            return Response(
-                data,
-                # posts,
-                # sort,
-                # status=status.HTTP_404_NOT_FOUND,
-            )
-        except ObjectDoesNotExist:
-            raise Http404
+    #         data = self.serializer_class(posts, many=True).data
+    #         return Response(
+    #             data,
+    #             # posts,
+    #             # sort,
+    #             # status=status.HTTP_404_NOT_FOUND,
+    #         )
+    #     except ObjectDoesNotExist:
+    #         raise Http404
 
 
     
@@ -119,13 +144,11 @@ class PostDetailApiView(APIView):
     def get(self, request, pk):
         try:
             post = Post.objects.get(pk=pk, author_id=request.user.id)
-            serializer = self.serializer_class(post)
-
         except Post.DoesNotExist:
+            return Response({'message': 'Post not found'} ,status=404)
 
-            return Response(serializer.data, status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.serializer_class(post)
+        return Response(serializer.data, status=200)
 
 
 class PostDeleteApiView(APIView):
@@ -267,14 +290,17 @@ class PostPublishApiView(APIView):
         try:
 
             post = Post.objects.get(pk=pk, author=request.user)
-            serializer = self.serializer_class(post)
-            post.publish()
-            post.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            
+
 
         except Comment.DoesNotExist:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
+        
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(post)
+        post.publish()
+        post.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
