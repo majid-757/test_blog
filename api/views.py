@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 
-
+from .permissions import IsAuthorOrReadOnly, IsStaffOrReadOnly
 from blog.models import Post, Comment, AboutUs
 from .serializers import (
     PostDeleteSerializer, 
@@ -139,22 +139,24 @@ class PostCreateApiView(APIView):
 class PostDetailApiView(APIView):
 
     serializer_class = PostDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get(self, request, pk):
         try:
-            post = Post.objects.get(pk=pk, author_id=request.user.id)
+            post = Post.objects.get(pk=pk)
         except Post.DoesNotExist:
             return Response({'message': 'Post not found'} ,status=404)
-
+        
+        self.check_object_permissions(request, post)
         serializer = self.serializer_class(post)
+        
         return Response(serializer.data, status=200)
 
 
 class PostDeleteApiView(APIView):
 
     serializer_class = PostDeleteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly, IsStaffOrReadOnly]
 
     def get(self, request, pk):
 
@@ -176,7 +178,7 @@ class PostDeleteApiView(APIView):
 class PostEditApiView(APIView):
 
     serializer_class = PostEditSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def post(self, request, pk,*args, **kwargs):
 
@@ -218,7 +220,7 @@ class PostDraftListApiView(APIView):
 class AddCommentToPostApiView(APIView):
 
     serializer_class = AddCommentToPostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def post(self, request, *args, **kwargs):
 
@@ -242,7 +244,7 @@ class AddCommentToPostApiView(APIView):
 class CommentRemoveApiView(APIView):
     
     serializer_class = CommentRemoveSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get(self, request, pk, *args, **kwargs):
 
@@ -283,7 +285,7 @@ class CommentApproveApiView(APIView):
 class PostPublishApiView(APIView):
 
     serializer_class = PostPublishSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get(self, request, pk, *args, **kwargs):
 
@@ -291,12 +293,11 @@ class PostPublishApiView(APIView):
 
             post = Post.objects.get(pk=pk, author=request.user)
             
-
-
         except Comment.DoesNotExist:
 
         
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.serializer_class(post)
         post.publish()
         post.save()

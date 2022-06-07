@@ -55,7 +55,7 @@ class PostDraftListSerializer(ModelSerializer):
 class AddCommentToPostSerializer(ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('post', 'text')
 
 
 
@@ -73,7 +73,7 @@ class CommentRemoveSerializer(ModelSerializer):
 class CommentApproveSerializer(ModelSerializer):
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('post', 'text')
 
 
 
