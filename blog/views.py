@@ -192,7 +192,7 @@ class About_Us(ListView):
 
 
 
-# @method_decorator(require_http_methods(["GET", "POST"]), name='dispatch')
+
 class CreatePostView(LoginRequiredMixin, View):
     
     model = Post
@@ -218,19 +218,31 @@ class CreatePostView(LoginRequiredMixin, View):
 
 
 
-    # def post(self, request, *args, **kwargs):
-    #     if not request.user.is_authenticated:
-    #         return HttpResponseForbidden()
+@login_required
+def liked(request, pk):
+
+    post = Post.objects.get(pk=pk)
+
+    already_liked = Like.objects.filter(post=post, user=request.user)
+
+    if not already_liked:
+        liked_post = Like(post=post, user=request.user)
+        liked_post.save()
+
+        return HttpResponseRedirect(reverse("App_Posts:home"))
 
 
-    # def form_valid(self, form):
-    #     # This method is called when valid form data has been POSTed.
-    #     # It should return an HttpResponse.
-    #     form.send_email()
-    #     return super().form_valid(form)
 
 
 
+@login_required
+def unliked(request, pk):
+    post = Post.objects.get(pk=pk)
+    already_liked = Like.objects.filter(post=post, user=request.user)
+
+    already_liked.delete()
+
+    return HttpResponseRedirect(reverse("App_Posts:home"))
 
 
 
