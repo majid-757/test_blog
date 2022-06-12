@@ -63,3 +63,13 @@ class PostView(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='myvisit')
 
 
+
+
+
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='liked_post')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='liker')
+    date_created = models.DateTimeField(auto_now_add=True)
+
+
+    

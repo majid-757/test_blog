@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods
 from django.db.models import Count
 
-from .models import Post, Comment, AboutUs, PostView
+from .models import Post, Comment, AboutUs, PostView, Like
 from .forms import PostForm, CommentForm
 
 
@@ -66,6 +66,7 @@ def post_list(request):
         posts.filter(published_date__isnull=False)
     else:
         posts.filter(published_date__isnull=True)
+
     return render(request, 'blog/post_list.html', {'posts': posts.order_by(sort)})
     
 
@@ -229,9 +230,7 @@ def liked(request, pk):
         liked_post = Like(post=post, user=request.user)
         liked_post.save()
 
-        return HttpResponseRedirect(reverse("App_Posts:home"))
-
-
+        return redirect('blog:post_list')
 
 
 
@@ -242,7 +241,7 @@ def unliked(request, pk):
 
     already_liked.delete()
 
-    return HttpResponseRedirect(reverse("App_Posts:home"))
+    return redirect('blog:post_list')
 
 
 
