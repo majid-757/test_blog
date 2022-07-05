@@ -240,8 +240,8 @@ def unliked(request, pk):
     already_liked = Like.objects.filter(post=post, user=request.user)
 
     already_liked.delete()
-    already_liked.save()
     
+
     return redirect('blog:post_list')
 
 
