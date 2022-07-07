@@ -247,5 +247,6 @@ def unliked(request, pk):
 
 
 
-
+def hello(request):
+    print('Hello!')
 
